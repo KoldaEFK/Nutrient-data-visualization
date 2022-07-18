@@ -25,7 +25,7 @@ app.layout = html.Div([
 
     html.H1("Simple app for visualising the NO3 data", style={'text-align': 'center'}),
 
-    dcc.Checklist(id='slsct_month',
+    dcc.Checklist(id='slct_month',
                 options=[
                 {'label': 'January', 'value': 1},
                 {'label': 'February', 'value': 2},
