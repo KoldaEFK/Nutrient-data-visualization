@@ -53,10 +53,21 @@ app.layout = html.Div([
     dcc.Dropdown(
         id="slct_plot",
         options=[
-        {"label": "Scatter", "value": "Scatter"},
-        {"label": "Heatmap", "value": "Heatmap"}],
+        {"label": "Discrete measurements (scatter)", "value": "Scatter"},
+        {"label": "Interpolated (heatmap)", "value": "Heatmap"}],
         multi=False,
         value='Scatter'),
+
+    html.Label(["Choose the depth:"], style={'font-weight':'bold'}),
+
+    dcc.Slider(
+        id='slct_depth', 
+        min=50, 
+        max=250, 
+        step=50,
+        value=100,
+        vertical=True,
+        verticalHeight=100),
    
     html.Br(),
 
@@ -69,14 +80,17 @@ app.layout = html.Div([
     [Output(component_id='graph', component_property='figure')],
     [Input(component_id='slct_month', component_property='value'), 
     Input(component_id='slct_scale', component_property='value'),
-    Input(component_id='slct_plot', component_property='value')]
+    Input(component_id='slct_plot', component_property='value'),
+    Input(component_id='slct_depth', component_property='value')
+    ]
 )
 #here the order of the inputs was determined, and has to be in the same order in the update_graph function
 
-def update_graph(month_slct, scale_slct, plot_slct):
+def update_graph(month_slct, scale_slct, plot_slct, depth_slct):
     print(month_slct)
     print(scale_slct)
     print(plot_slct)
+    print(depth_slct)
 
     dff = df.copy()
 
@@ -86,11 +100,12 @@ def update_graph(month_slct, scale_slct, plot_slct):
     months = month_slct #months to be displayed
     colorscale = scale_slct #log - logartmic; lin - linear
     plot_type = plot_slct
+    depth_range = [depth_slct,0]
 
     """
     PARAMETERS PRE-DEFINED
     """
-    depth_range = [100,0]
+    
     month_dict = {
     1: "January",
     2: "February",
@@ -144,7 +159,7 @@ def update_graph(month_slct, scale_slct, plot_slct):
             
 
         fig.update_layout(title="NO3 overview",
-                        yaxis = dict(range=[100,0]),
+                        yaxis = dict(range=depth_range),
                         height=400*len(months), width=1000)
         
         return [fig]
@@ -167,7 +182,7 @@ def update_graph(month_slct, scale_slct, plot_slct):
             fig.update_xaxes(title_text="Year", range=[1970, 2018], row=i+1, col=1)
 
         fig.update_layout(title="NO3 overview",
-                    yaxis = dict(range=[100,0]),
+                    yaxis = dict(range=depth_range),
                     height=400*len(months), width=1000)
 
         #fig.update_traces(selector=dict(type='heatmap'))
