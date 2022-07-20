@@ -40,7 +40,7 @@ app.layout = html.Div([
                 {'label': 'November', 'value': 11},
                {'label': 'December', 'value': 12},
                 ],
-            value=[3]),
+            value=[3,5]),
 
     dcc.Dropdown(
         id="slct_scale",
