@@ -13,9 +13,11 @@ viridis = px.colors.sequential.Viridis
 #DATA
 path = "./"
 df = pd.read_csv(os.path.join(path,"no3data.csv")).drop(["Unnamed: 0"], axis=1)
+halocline_df = pd.read_csv(os.path.join(path,"haloclinedata271.csv")).drop(["Unnamed: 0"], axis=1)
 
 #DASH
 from dash import Dash, dcc, html, Input, Output
+import dash_daq as daq
 
 app = Dash(__name__)
 server = app.server
@@ -58,6 +60,10 @@ app.layout = html.Div([
         multi=False,
         value='Scatter'),
 
+    daq.BooleanSwitch(id='slct_halocline',
+        label='Show halocline',
+        on=False),
+
     html.Label(["Choose the depth:"], style={'font-weight':'bold'}),
 
     dcc.Slider(
@@ -81,16 +87,18 @@ app.layout = html.Div([
     [Input(component_id='slct_month', component_property='value'), 
     Input(component_id='slct_scale', component_property='value'),
     Input(component_id='slct_plot', component_property='value'),
-    Input(component_id='slct_depth', component_property='value')
+    Input(component_id='slct_depth', component_property='value'),
+    Input(component_id='slct_halocline', component_property='on')
     ]
 )
 #here the order of the inputs was determined, and has to be in the same order in the update_graph function
 
-def update_graph(month_slct, scale_slct, plot_slct, depth_slct):
+def update_graph(month_slct, scale_slct, plot_slct, depth_slct, halocline_slct):
     print(month_slct)
     print(scale_slct)
     print(plot_slct)
     print(depth_slct)
+    print(halocline_slct)
 
     dff = df.copy()
 
@@ -101,6 +109,7 @@ def update_graph(month_slct, scale_slct, plot_slct, depth_slct):
     colorscale = scale_slct #log - logartmic; lin - linear
     plot_type = plot_slct
     depth_range = [depth_slct,0]
+    halocline = halocline_slct
 
     """
     PARAMETERS PRE-DEFINED
@@ -157,13 +166,6 @@ def update_graph(month_slct, scale_slct, plot_slct, depth_slct):
             fig.update_yaxes(title_text="Depth [m]", range=depth_range, row=i+1, col=1)
             fig.update_xaxes(title_text="Year", range=[1970, 2020], row=i+1, col=1)
             
-
-        fig.update_layout(title="NO3 overview",
-                        yaxis = dict(range=depth_range),
-                        height=400*len(months), width=1000)
-        
-        return [fig]
-
     #HEATMAP
     else:
         for i,month in enumerate(sorted(months)):
@@ -181,12 +183,27 @@ def update_graph(month_slct, scale_slct, plot_slct, depth_slct):
             fig.update_yaxes(title_text="Depth [m]", range=depth_range, row=i+1, col=1)
             fig.update_xaxes(title_text="Year", range=[1970, 2018], row=i+1, col=1)
 
-        fig.update_layout(title="NO3 overview",
+
+    if halocline:
+        for i,month in enumerate(sorted(months)):
+            fig.add_trace(go.Scatter(x=halocline_df[halocline_df["Month"]==month]["Year"], 
+                                    y=halocline_df[halocline_df["Month"]==month]["halocline"],
+                                    mode='markers',
+                                    name='halocline',
+                                    hoverinfo = ['y'],
+                                    showlegend=True if i==0 else False,
+                                    marker=dict(
+                                        symbol="triangle-down", 
+                                        color="red",
+                                        size=8)),
+                        row=i+1, col=1)
+            
+
+    fig.update_layout(title="NO3 overview",
                     yaxis = dict(range=depth_range),
                     height=400*len(months), width=1000)
-
-        #fig.update_traces(selector=dict(type='heatmap'))
-        return [fig]
+    
+    return [fig]
         
 if __name__ == '__main__':
     app.run_server(debug=True)
