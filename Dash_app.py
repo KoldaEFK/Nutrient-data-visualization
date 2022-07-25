@@ -12,8 +12,8 @@ viridis = px.colors.sequential.Viridis
 
 #DATA
 path = "./"
-df = pd.read_csv(os.path.join(path,"no3data.csv")).drop(["Unnamed: 0"], axis=1)
-halocline_df = pd.read_csv(os.path.join(path,"haloclinedata271.csv")).drop(["Unnamed: 0"], axis=1)
+df = pd.read_csv(os.path.join(path,"no3data.csv")).drop(["Unnamed: 0"], axis=1) #original no3 dataframe
+halocline_df = pd.read_csv(os.path.join(path,"haloclinedata271.csv")).drop(["Unnamed: 0"], axis=1) #halocline depth for each year and month
 
 #DASH
 from dash import Dash, dcc, html, Input, Output
@@ -60,6 +60,8 @@ app.layout = html.Div([
         multi=False,
         value='Scatter'),
 
+    #html.Label(["Display halocline:"], style={'font-weight':'bold'}),
+
     daq.BooleanSwitch(id='slct_halocline',
         label='Show halocline',
         on=False),
@@ -76,10 +78,11 @@ app.layout = html.Div([
         verticalHeight=100),
    
     html.Br(),
-
-    dcc.Graph(id='graph', figure={})
-
+    html.Div([
+        dcc.Graph(id='graph', figure={}, style={'display':'inline-block'})
+    ])
 ])
+
 
 #CALLBACK
 @app.callback(
