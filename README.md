@@ -19,6 +19,10 @@
 
 **haloclinedata271.csv, no3data.csv** - datasets derived from the data in Data folder and so far the only data used by Dash_app.py 
 
+**example of app functionality:**
+
+<img width="936" alt="Screenshot 2023-10-30 at 01 05 06" src="https://github.com/KoldaEFK/Nutrient-data-visualization/assets/49583199/37d31869-c11b-4d5f-bf25-24c0ba8d67a8">
+
 ## References:
 - https://plotly.com/
 - https://dash.plotly.com/
